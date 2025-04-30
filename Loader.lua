@@ -1,4 +1,4 @@
-player.Namelocal Fluent = loadstring(Game:HttpGet("https://raw.githubusercontent.com/discoart/FluentPlus/refs/heads/main/release.lua", true))()
+local Fluent = loadstring(Game:HttpGet("https://raw.githubusercontent.com/discoart/FluentPlus/refs/heads/main/release.lua", true))()
  
 local Window = Fluent:CreateWindow({
     Title = "Blox fruits",
@@ -186,7 +186,7 @@ local function getPlayerLevel(player)
 end
 
 local function atualizarMeuLevel()
-    MyLevel = getPlayerLevel(Players.LocalPlayer)
+    MyLevel = getPlayerLevel(game.Players.LocalPlayer)
 end
 
 local function possoMatar(levelAlvo)
@@ -197,8 +197,8 @@ local function atualizarJogadores()
     atualizarMeuLevel()
     
     local outrosJogadores = {}
-    for _, player in ipairs(Players:GetPlayers()) do
-        if player ~= Players.LocalPlayer then
+    for _, player in ipairs(game.Players:GetPlayers()) do
+        if player ~= game.Players.LocalPlayer then
             table.insert(outrosJogadores, player)
         end
     end
@@ -233,7 +233,7 @@ local function atualizarJogadores()
                 "Level: %d %s\n%s", level, diffText, status
             ))
         else
-            playerCards[player.Name] = Tabs.Main:AddParagraph({
+            playerCards[player.Name] = main:AddParagraph({
                 Title = player.Name,
                 Content = string.format(
                     "Level: %d %s\n%s", level, diffText, status
@@ -244,7 +244,7 @@ local function atualizarJogadores()
     
     if #outrosJogadores == 0 then
         if not playerCards["SemJogadores"] then
-            playerCards["SemJogadores"] = Tabs.Main:AddParagraph({
+            playerCards["SemJogadores"] = main:AddParagraph({
                 Title = "Servidor vazio",
                 Content = "Nenhum outro jogador encontrado"
             })
@@ -255,6 +255,7 @@ local function atualizarJogadores()
     end
 end
 
+-- Inicia o monitoramento automático
 task.spawn(function()
     while true do
         atualizarJogadores()

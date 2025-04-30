@@ -10,6 +10,6 @@ local Window = Fluent:CreateWindow({
 })
 
 local main = Window:AddTab({ Title = "main farm", Icon = "home" })
-local config = Window:AddTab({ Title = "configurações", Icon = "setting" })
+local config = Window:AddTab({ Title = "configurações", Icon = "Setting" })
 
 

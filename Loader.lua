@@ -181,7 +181,7 @@ main:AddToggle("", {
         _G().AutoFarm = value
         
         if value then
-            loadstring(Game:HttpGet("https://raw.githubusercontent.com/Lucasggk/BloxFruits-/blob/main/Farm.Loader.lua", true))()
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/Lucasggk/BloxFruits-/main/Farm.Loader.lua", true))()
         end
     end
 })

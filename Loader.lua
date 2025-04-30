@@ -15,24 +15,25 @@ local config = Window:AddTab({ Title = "configurações", Icon = "Settings" })
 FastAttackmob = true 
 FastAttackplayer = true 
 
-config:AddToggle("",{
-        Title = "FastAttack em mob",
-        Defalt = true,
-        Callback function(value)
-            FastAttackmob = value
-        end
-    })
+local section = config:AddSection("Fast Attack")
 
-config:AddToggle("",{
-        Title = "FastAttack em player",
-        Defalt = true,
-        Callback function(value)
-            FastAttackplayer = value
-        end
-    })
-                
+config:AddToggle("", {
+    Title = "FastAttack em mob",
+    Default = true,
+    Callback = function(value)
+        FastAttackmob = value
+    end
+})
 
-Config:AddToggle("", {
+config:AddToggle("", {
+    Title = "FastAttack em player",
+    Default = true,
+    Callback = function(value)
+        FastAttackplayer = value
+    end
+})
+
+config:AddToggle("", {
     Title = "Fast Attack",
     Default = true,
     Callback = function(value)
@@ -110,5 +111,6 @@ Config:AddToggle("", {
         end)
     end
 })
-            
-            
+
+local section = config:AddSection("otimização")
+

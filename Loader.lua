@@ -118,12 +118,13 @@ config:AddToggle("", {
     Title = "Exibir FPS",
     Default = false,
     Callback = function(value)
-        if value then
-            local Players = game:GetService("Players")
-            local RunService = game:GetService("RunService")
-            local LocalPlayer = Players.LocalPlayer
+        local Players = game:GetService("Players")
+        local RunService = game:GetService("RunService")
+        local LocalPlayer = Players.LocalPlayer
 
+        if value then
             local ScreenGui = Instance.new("ScreenGui")
+            ScreenGui.Name = "FPSGui"
             ScreenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
             ScreenGui.IgnoreGuiInset = true
 
@@ -160,9 +161,9 @@ config:AddToggle("", {
                 end
             end)
         else
-            local ScreenGui = LocalPlayer:FindFirstChild("PlayerGui"):FindFirstChildOfClass("ScreenGui")
-            if ScreenGui then
-                ScreenGui:Destroy()
+            local gui = LocalPlayer:FindFirstChild("PlayerGui"):FindFirstChild("FPSGui")
+            if gui then
+                gui:Destroy()
             end
         end
     end

@@ -1,5 +1,5 @@
 local Fluent = loadstring(Game:HttpGet("https://raw.githubusercontent.com/discoart/FluentPlus/refs/heads/main/release.lua", true))()
-
+ 
 local Window = Fluent:CreateWindow({
     Title = "Blox fruits",
     SubTitle = "Feito por Lucas",

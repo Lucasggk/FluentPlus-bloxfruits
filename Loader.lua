@@ -116,7 +116,6 @@ local section = config:AddSection("otimização")
 
 config:AddToggle("", {
     Title = "otimização",
-    Description = "deixa o jogo otimizado mas com grafico de batata",
     Default = false,
     Callback = function(value)
         local ToDisable = {
@@ -128,7 +127,7 @@ config:AddToggle("", {
         }
 
         local ToEnable = {
-            FullBright = false 
+            FullBright = value
         }
 
         local Stuff = {}
@@ -181,6 +180,17 @@ config:AddToggle("", {
             Lighting.ColorShift_Top = Color3.fromRGB(255, 255, 255)
             Lighting.OutdoorAmbient = Color3.fromRGB(255, 255, 255)
             Lighting.Outlines = true
+        else
+            local Lighting = game:GetService("Lighting")
+            Lighting.FogColor = Color3.fromRGB(0, 0, 0)
+            Lighting.FogEnd = 0
+            Lighting.FogStart = 0
+            Lighting.Ambient = Color3.fromRGB(128, 128, 128)
+            Lighting.Brightness = 2
+            Lighting.ColorShift_Bottom = Color3.fromRGB(128, 128, 128)
+            Lighting.ColorShift_Top = Color3.fromRGB(128, 128, 128)
+            Lighting.OutdoorAmbient = Color3.fromRGB(128, 128, 128)
+            Lighting.Outlines = false
         end
     end
 })
@@ -230,6 +240,11 @@ config:AddToggle("", {
                     LastUpdate = tick()
                 end
             end)
+        else
+            local ScreenGui = LocalPlayer:FindFirstChild("PlayerGui"):FindFirstChildOfClass("ScreenGui")
+            if ScreenGui then
+                ScreenGui:Destroy()
+            end
         end
     end
 })

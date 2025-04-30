@@ -175,11 +175,10 @@ local section = main:AddSection("auto farm level")
 
 
 main:AddToggle("", {
-    Title = "AutoFarm Level",
+    Title = "Auto Farm Level",
     Default = false,
     Callback = function(value)
-        _G().AutoFarm = value
-        
+        _G.AutoFarm = value
         if value then
             loadstring(game:HttpGet("https://raw.githubusercontent.com/Lucasggk/BloxFruits-/main/Farm.Loader.lua", true))()
         end

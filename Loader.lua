@@ -174,64 +174,27 @@ config:AddToggle("", {
 local section = main:AddSection("auto farm level")
 
 
-local playerParagraphs = {}
+local playerCards = {}
 local MyLevel = 0
 local DIFERENCA_LEVEL = 700
 
 local function getPlayerLevel(player)
-
-    if player:FindFirstChild("Data") and player.Data:FindFirstChild("Level") then
-        return player.Data.Level.Value
-    end
-    
-
-    if player:FindFirstChild("leaderstats") and player.leaderstats:FindFirstChild("Level") then
-        return player.leaderstats.Level.Value
-    end
-    
-
-    if player:FindFirstChild("Stats") and player.Stats:FindFirstChild("Level") then
-        return player.Stats.Level.Value
-    end
-    
-    return 0 
+    return player:FindFirstChild("Data") and player.Data:FindFirstChild("Level") and player.Data.Level.Value
+        or player:FindFirstChild("leaderstats") and player.leaderstats:FindFirstChild("Level") and player.leaderstats.Level.Value
+        or player:FindFirstChild("Stats") and player.Stats:FindFirstChild("Level") and player.Stats.Level.Value
+        or 0
 end
-
 
 local function atualizarMeuLevel()
-    local player = Players.LocalPlayer
-    
-
-    if player:FindFirstChild("Data") and player.Data:FindFirstChild("Level") then
-        MyLevel = player.Data.Level.Value
-        return
-    end
-    
-
-    if player:FindFirstChild("leaderstats") and player.leaderstats:FindFirstChild("Level") then
-        MyLevel = player.leaderstats.Level.Value
-        return
-    end
-    
-    
-    if player:FindFirstChild("Stats") and player.Stats:FindFirstChild("Level") then
-        MyLevel = player.Stats.Level.Value
-        return
-    end
-    
-    MyLevel = 0 
+    MyLevel = getPlayerLevel(Players.LocalPlayer)
 end
-
 
 local function possoMatar(levelAlvo)
-    local diferenca = math.abs(MyLevel - levelAlvo)
-    return diferenca <= DIFERENCA_LEVEL
+    return math.abs(MyLevel - levelAlvo) <= DIFERENCA_LEVEL
 end
 
-
 local function atualizarJogadores()
-    atualizarMeuLevel() 
-    
+    atualizarMeuLevel()
     
     local outrosJogadores = {}
     for _, player in ipairs(Players:GetPlayers()) do
@@ -240,78 +203,61 @@ local function atualizarJogadores()
         end
     end
     
-    
-    for nome, paragraph in pairs(playerParagraphs) do
-        local aindaExiste = false
+    for nome, card in pairs(playerCards) do
+        local existe = false
         for _, player in ipairs(outrosJogadores) do
             if player.Name == nome then
-                aindaExiste = true
+                existe = true
                 break
             end
         end
         
-        if not aindaExiste then
-            paragraph:Remove()
-            playerParagraphs[nome] = nil
+        if not existe then
+            card:Remove()
+            playerCards[nome] = nil
         end
     end
     
-
     for _, player in ipairs(outrosJogadores) do
         local level = getPlayerLevel(player)
         local podeMatar = possoMatar(level)
-        local status = podeMatar and "✅ Pode matar" or "❌ Não pode matar"
         local diferenca = MyLevel - level
         
-        local textoDiferenca
-        if diferenca > 0 then
-            textoDiferenca = string.format("(%d níveis abaixo de você)", math.abs(diferenca))
-        elseif diferenca < 0 then
-            textoDiferenca = string.format("(%d níveis acima de você)", math.abs(diferenca))
-        else
-            textoDiferenca = "(mesmo nível que você)"
-        end
+        local status = podeMatar and "✅ Pode matar" or "❌ Não pode matar"
+        local diffText = diferenca > 0 and string.format("(%d abaixo)", math.abs(diferenca))
+                        or diferenca < 0 and string.format("(%d acima)", math.abs(diferenca))
+                        or "(mesmo nível)"
         
-        if playerParagraphs[player.Name] then
-            
-            playerParagraphs[player.Name]:SetDesc(string.format(
-                "Level: %d %s\n%s",
-                level,
-                textoDiferenca,
-                status
+        if playerCards[player.Name] then
+            playerCards[player.Name]:SetDesc(string.format(
+                "Level: %d %s\n%s", level, diffText, status
             ))
         else
-            
-            playerParagraphs[player.Name] = Tabs.Main:AddParagraph({
+            playerCards[player.Name] = Tabs.Main:AddParagraph({
                 Title = player.Name,
                 Content = string.format(
-                    "Level: %d %s\n%s",
-                    level,
-                    textoDiferenca,
-                    status
+                    "Level: %d %s\n%s", level, diffText, status
                 )
             })
         end
     end
     
-    
     if #outrosJogadores == 0 then
-        if not playerParagraphs["SemJogadores"] then
-            playerParagraphs["SemJogadores"] = Tabs.Main:AddParagraph({
+        if not playerCards["SemJogadores"] then
+            playerCards["SemJogadores"] = Tabs.Main:AddParagraph({
                 Title = "Servidor vazio",
-                Content = "Não há outros jogadores no servidor."
+                Content = "Nenhum outro jogador encontrado"
             })
         end
-    else
-        if playerParagraphs["SemJogadores"] then
-            playerParagraphs["SemJogadores"]:Remove()
-            playerParagraphs["SemJogadores"] = nil
-        end
+    elseif playerCards["SemJogadores"] then
+        playerCards["SemJogadores"]:Remove()
+        playerCards["SemJogadores"] = nil
     end
 end
 
-
-while true do
-    atualizarJogadores()
-    wait(2)
-end
+task.spawn(function()
+    while true do
+        atualizarJogadores()
+        task.wait(2)
+    end
+end)

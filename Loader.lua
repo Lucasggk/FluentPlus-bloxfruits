@@ -10,7 +10,7 @@ local Window = Fluent:CreateWindow({
 })
 
 local main = Window:AddTab({ Title = "main farm", Icon = "home" })
-local config = Window:AddTab({ Title = "configurações", Icon = "Settings" })
+local config = Window:AddTab({ Title = "configurações", Icon = "settings" })
 
 FastAttackmob = true 
 FastAttackplayer = true 

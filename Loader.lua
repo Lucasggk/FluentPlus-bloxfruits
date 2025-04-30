@@ -114,3 +114,122 @@ config:AddToggle("", {
 
 local section = config:AddSection("otimização")
 
+config:AddToggle("", {
+    Title = "otimização e FullBright",
+    Description = "deixa o jogo otimizado mas com grafico de batata",
+    Default = true,
+    Callback = function(value)
+        local ToDisable = {
+            Textures = true,
+            VisualEffects = true,
+            Parts = true,
+            Particles = true,
+            Sky = true
+        }
+
+        local ToEnable = {
+            FullBright = true
+        }
+
+        local Stuff = {}
+
+        for _, v in next, game:GetDescendants() do
+            if ToDisable.Parts then
+                if v:IsA("Part") or v:IsA("Union") or v:IsA("BasePart") then
+                    v.Material = Enum.Material.SmoothPlastic
+                    table.insert(Stuff, 1, v)
+                end
+            end
+
+            if ToDisable.Particles then
+                if v:IsA("ParticleEmitter") or v:IsA("Smoke") or v:IsA("Explosion") or v:IsA("Sparkles") or v:IsA("Fire") then
+                    v.Enabled = false
+                    table.insert(Stuff, 1, v)
+                end
+            end
+
+            if ToDisable.VisualEffects then
+                if v:IsA("BloomEffect") or v:IsA("BlurEffect") or v:IsA("DepthOfFieldEffect") or v:IsA("SunRaysEffect") then
+                    v.Enabled = false
+                    table.insert(Stuff, 1, v)
+                end
+            end
+
+            if ToDisable.Textures then
+                if v:IsA("Decal") or v:IsA("Texture") then
+                    v.Texture = ""
+                    table.insert(Stuff, 1, v)
+                end
+            end
+
+            if ToDisable.Sky then
+                if v:IsA("Sky") then
+                    v.Parent = nil
+                    table.insert(Stuff, 1, v)
+                end
+            end
+        end
+
+        if ToEnable.FullBright then
+            local Lighting = game:GetService("Lighting")
+            Lighting.FogColor = Color3.fromRGB(255, 255, 255)
+            Lighting.FogEnd = math.huge
+            Lighting.FogStart = math.huge
+            Lighting.Ambient = Color3.fromRGB(255, 255, 255)
+            Lighting.Brightness = 5
+            Lighting.ColorShift_Bottom = Color3.fromRGB(255, 255, 255)
+            Lighting.ColorShift_Top = Color3.fromRGB(255, 255, 255)
+            Lighting.OutdoorAmbient = Color3.fromRGB(255, 255, 255)
+            Lighting.Outlines = true
+        end
+    end
+})
+
+config:AddToggle("", {
+    Title = "Exibir FPS",
+    Default = true,
+    Callback = function(value)
+        if value then
+            local Players = game:GetService("Players")
+            local RunService = game:GetService("RunService")
+            local LocalPlayer = Players.LocalPlayer
+
+            local ScreenGui = Instance.new("ScreenGui")
+            ScreenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
+            ScreenGui.IgnoreGuiInset = true
+
+            local Frame = Instance.new("Frame")
+            Frame.Parent = ScreenGui
+            Frame.Size = UDim2.new(0, 200, 0, 80)
+            Frame.Position = UDim2.new(0, 10, 0, 10)
+            Frame.BackgroundTransparency = 1
+            Frame.Active = true
+            Frame.Draggable = true
+
+            local FPSLabel = Instance.new("TextLabel")
+            FPSLabel.Parent = Frame
+            FPSLabel.Size = UDim2.new(1, 0, 1, 0)
+            FPSLabel.Position = UDim2.new(0, 0, 0, 0)
+            FPSLabel.BackgroundTransparency = 1
+            FPSLabel.Text = "FPS: 0"
+            FPSLabel.TextColor3 = Color3.new(1, 1, 1)
+            FPSLabel.Font = Enum.Font.SourceSansBold
+            FPSLabel.TextSize = 50
+            FPSLabel.TextStrokeTransparency = 0.5
+            FPSLabel.TextXAlignment = Enum.TextXAlignment.Center
+            FPSLabel.TextYAlignment = Enum.TextYAlignment.Center
+
+            local LastUpdate = tick()
+            local FrameCount = 0
+
+            RunService.RenderStepped:Connect(function()
+                FrameCount = FrameCount + 1
+                if tick() - LastUpdate >= 1 then
+                    FPSLabel.Text = "FPS: " .. FrameCount
+                    FrameCount = 0
+                    LastUpdate = tick()
+                end
+            end)
+        end
+    end
+})

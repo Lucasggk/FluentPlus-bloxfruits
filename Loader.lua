@@ -185,3 +185,138 @@ main:AddToggle("", {
         end
     end
 })
+
+-- Carrega as configurações de farm do repositório GitHub
+local FarmLoader = loadstring(game:HttpGet("https://raw.githubusercontent.com/Lucasggk/BloxFruits-/main/Farm.Loader.lua"))()
+
+-- Auto Farm Level Completo
+local AutoFarm = Tabs.Main:AddToggle("AutoFarm", {
+    Title = "Auto Farm Level (Tudo Automático)",
+    Default = false,
+    Callback = function(Value)
+        _G.AutoFarm = Value
+        _G.FastAttack = Value  -- Ativa fast attack junto
+        _G.BringMob = Value    -- Ativa bring mob junto
+        
+        if Value then
+            spawn(function()
+                while wait() do
+                    if _G.AutoFarm then
+                        pcall(function()
+                            -- Ativa Haki automaticamente
+                            if not game:GetService("Players").LocalPlayer.Character:FindFirstChild("HasBuso") then
+                                game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("Buso")
+                            end
+                            
+                            -- Usa as configurações carregadas do GitHub
+                            local MyLevel = game:GetService("Players").LocalPlayer.Data.Level.Value
+                            local MonData = FarmLoader.GetMonsterData(MyLevel)
+                            
+                            Mon = MonData.Mon
+                            LevelQuest = MonData.LevelQuest
+                            NameQuest = MonData.NameQuest
+                            CFrameQuest = MonData.CFrameQuest
+                            CFrameMon = MonData.CFrameMon
+                            
+                            -- Sistema de detecção de quest
+                            if game:GetService("Players").LocalPlayer.PlayerGui.Main.Quest.Visible == false then
+                                StartMagnet = false
+                                game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("StartQuest", NameQuest, LevelQuest)
+                                game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("SetSpawnPoint")
+                            elseif game:GetService("Players").LocalPlayer.PlayerGui.Main.Quest.Visible == true then
+                                pcall(function()
+                                    -- Sistema de combate automático
+                                    if game:GetService("Workspace").Enemies:FindFirstChild(Mon) then
+                                        for i,v in pairs(game:GetService("Workspace").Enemies:GetChildren()) do
+                                            if v.Name == Mon and v:FindFirstChild("HumanoidRootPart") and v:FindFirstChild("Humanoid") and v.Humanoid.Health > 0 then
+                                                repeat task.wait()
+                                                    -- Equipa a melhor arma automaticamente
+                                                    local maxDamage = 0
+                                                    local bestWeapon
+                                                    for _, weapon in pairs(game:GetService("Players").LocalPlayer.Backpack:GetChildren()) do
+                                                        if weapon:IsA("Tool") and weapon:FindFirstChild("RemoteFunctionShoot") then
+                                                            local damage = weapon:FindFirstChild("Damage") and weapon.Damage.Value or 0
+                                                            if damage > maxDamage then
+                                                                maxDamage = damage
+                                                                bestWeapon = weapon.Name
+                                                            end
+                                                        end
+                                                    end
+                                                    if bestWeapon then
+                                                        EquipWeapon(bestWeapon)
+                                                    end
+                                                    
+                                                    -- Configurações de combate
+                                                    v.HumanoidRootPart.CanCollide = false
+                                                    v.Humanoid.WalkSpeed = 0
+                                                    v.Head.CanCollide = false
+                                                    StartMagnet = true
+                                                    PosMon = v.HumanoidRootPart.CFrame
+                                                    topos(v.HumanoidRootPart.CFrame * CFrame.new(0, 30, 5))
+                                                    
+                                                    -- Ataque automático
+                                                    game:GetService'VirtualUser':CaptureController()
+                                                    game:GetService'VirtualUser':Button1Down(Vector2.new(1280, 672))
+                                                    
+                                                    -- Fast Attack automático
+                                                    if _G.FastAttack then
+                                                        require(game:GetService("Players").LocalPlayer.PlayerScripts.CombatFramework).activeController.hitboxMagnitude = 50
+                                                        require(game:GetService("Players").LocalPlayer.PlayerScripts.CombatFramework).activeController.timeToNextAttack = 0
+                                                        require(game:GetService("Players").LocalPlayer.PlayerScripts.CombatFramework).activeController.increment = 3
+                                                    end
+                                                    
+                                                until not _G.AutoFarm or not v.Parent or v.Humanoid.Health <= 0
+                                                StartMagnet = false
+                                            end
+                                        end
+                                    else
+                                        -- Teleporta para o local do monstro se não encontrado
+                                        StartMagnet = false
+                                        if game:GetService("ReplicatedStorage"):FindFirstChild(Mon) then
+                                            topos(game:GetService("ReplicatedStorage"):FindFirstChild(Mon).HumanoidRootPart.CFrame * CFrame.new(0, 30, 5))
+                                        else
+                                            if (CFrameQuest.Position - game.Players.LocalPlayer.Character.HumanoidRootPart.Position).Magnitude <= 15 then
+                                                if PosMon ~= nil then
+                                                    topos(PosMon * CFrame.new(0, 30, 5))
+                                                end
+                                            end
+                                        end
+                                    end
+                                end)
+                            end
+                        end)
+                    end
+                end
+            end)
+        else
+            -- Desativa tudo quando desligado
+            StopTween()
+            StartMagnet = false
+        end
+    end
+})
+
+-- Funções auxiliares
+function EquipWeapon(ToolSe)
+    if not _G.NotAutoEquip then
+        if game.Players.LocalPlayer.Backpack:FindFirstChild(ToolSe) then
+            local Tool = game.Players.LocalPlayer.Backpack:FindFirstChild(ToolSe)
+            wait(.1)
+            game.Players.LocalPlayer.Character.Humanoid:EquipTool(Tool)
+        end
+    end
+end
+
+function StopTween()
+    if not _G.StopTween then
+        _G.StopTween = true
+        wait()
+        topos(game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame)
+        wait()
+        if game:GetService("Players").LocalPlayer.Character.HumanoidRootPart:FindFirstChild("BodyClip") then
+            game:GetService("Players").LocalPlayer.Character.HumanoidRootPart:FindFirstChild("BodyClip"):Destroy()
+        end
+        _G.StopTween = false
+        _G.Clip = false
+    end
+end

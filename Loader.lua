@@ -115,9 +115,9 @@ config:AddToggle("", {
 local section = config:AddSection("otimização")
 
 config:AddToggle("", {
-    Title = "otimização e FullBright",
+    Title = "otimização",
     Description = "deixa o jogo otimizado mas com grafico de batata",
-    Default = true,
+    Default = false,
     Callback = function(value)
         local ToDisable = {
             Textures = true,
@@ -128,7 +128,7 @@ config:AddToggle("", {
         }
 
         local ToEnable = {
-            FullBright = true
+            FullBright = false 
         }
 
         local Stuff = {}
@@ -187,7 +187,7 @@ config:AddToggle("", {
 
 config:AddToggle("", {
     Title = "Exibir FPS",
-    Default = true,
+    Default = false,
     Callback = function(value)
         if value then
             local Players = game:GetService("Players")

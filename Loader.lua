@@ -10,6 +10,28 @@ local Window = Fluent:CreateWindow({
 })
 
 local main = Window:AddTab({ Title = "main farm", Icon = "home" })
-local config = Window:AddTab({ Title = "configurações", Icon = "Setting" })
+local config = Window:AddTab({ Title = "configurações", Icon = "Settings" })
+
+FastAttackmob = true 
+FastAttackplayer = true 
+
+config:AddToggle("",{
+        Title = "FastAttack em mob",
+        Defalt = true,
+        Callback function(value)
+            FastAttackmob = value
+        end
+    })
+
+config:AddToggle("",{
+        Title = "FastAttack em player",
+        Defalt = true,
+        Callback function(value)
+            FastAttackplayer = value
+        end
+    })
+                
 
 
+            
+            

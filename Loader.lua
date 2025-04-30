@@ -1,4 +1,4 @@
-local Fluent = loadstring(Game:HttpGet("https://raw.githubusercontent.com/discoart/FluentPlus/refs/heads/main/release.lua", true))()
+player.Namelocal Fluent = loadstring(Game:HttpGet("https://raw.githubusercontent.com/discoart/FluentPlus/refs/heads/main/release.lua", true))()
  
 local Window = Fluent:CreateWindow({
     Title = "Blox fruits",
@@ -9,7 +9,7 @@ local Window = Fluent:CreateWindow({
     Theme = "Dark"
 })
 
-local main = Window:AddTab({ Title = "main farm", Icon = "home" })
+local main = Window:AddTab({ Title = "monitor pvp", Icon = "home" })
 local config = Window:AddTab({ Title = "configurações", Icon = "settings" })
 
 FastAttackmob = true 
@@ -174,4 +174,144 @@ config:AddToggle("", {
 local section = main:AddSection("auto farm level")
 
 
+local playerParagraphs = {}
+local MyLevel = 0
+local DIFERENCA_LEVEL = 700
 
+local function getPlayerLevel(player)
+
+    if player:FindFirstChild("Data") and player.Data:FindFirstChild("Level") then
+        return player.Data.Level.Value
+    end
+    
+
+    if player:FindFirstChild("leaderstats") and player.leaderstats:FindFirstChild("Level") then
+        return player.leaderstats.Level.Value
+    end
+    
+
+    if player:FindFirstChild("Stats") and player.Stats:FindFirstChild("Level") then
+        return player.Stats.Level.Value
+    end
+    
+    return 0 
+end
+
+
+local function atualizarMeuLevel()
+    local player = Players.LocalPlayer
+    
+
+    if player:FindFirstChild("Data") and player.Data:FindFirstChild("Level") then
+        MyLevel = player.Data.Level.Value
+        return
+    end
+    
+
+    if player:FindFirstChild("leaderstats") and player.leaderstats:FindFirstChild("Level") then
+        MyLevel = player.leaderstats.Level.Value
+        return
+    end
+    
+    
+    if player:FindFirstChild("Stats") and player.Stats:FindFirstChild("Level") then
+        MyLevel = player.Stats.Level.Value
+        return
+    end
+    
+    MyLevel = 0 
+end
+
+
+local function possoMatar(levelAlvo)
+    local diferenca = math.abs(MyLevel - levelAlvo)
+    return diferenca <= DIFERENCA_LEVEL
+end
+
+
+local function atualizarJogadores()
+    atualizarMeuLevel() 
+    
+    
+    local outrosJogadores = {}
+    for _, player in ipairs(Players:GetPlayers()) do
+        if player ~= Players.LocalPlayer then
+            table.insert(outrosJogadores, player)
+        end
+    end
+    
+    
+    for nome, paragraph in pairs(playerParagraphs) do
+        local aindaExiste = false
+        for _, player in ipairs(outrosJogadores) do
+            if player.Name == nome then
+                aindaExiste = true
+                break
+            end
+        end
+        
+        if not aindaExiste then
+            paragraph:Remove()
+            playerParagraphs[nome] = nil
+        end
+    end
+    
+
+    for _, player in ipairs(outrosJogadores) do
+        local level = getPlayerLevel(player)
+        local podeMatar = possoMatar(level)
+        local status = podeMatar and "✅ Pode matar" or "❌ Não pode matar"
+        local diferenca = MyLevel - level
+        
+        local textoDiferenca
+        if diferenca > 0 then
+            textoDiferenca = string.format("(%d níveis abaixo de você)", math.abs(diferenca))
+        elseif diferenca < 0 then
+            textoDiferenca = string.format("(%d níveis acima de você)", math.abs(diferenca))
+        else
+            textoDiferenca = "(mesmo nível que você)"
+        end
+        
+        if playerParagraphs[player.Name] then
+            
+            playerParagraphs[player.Name]:SetDesc(string.format(
+                "Level: %d %s\n%s",
+                level,
+                textoDiferenca,
+                status
+            ))
+        else
+            
+            playerParagraphs[player.Name] = Tabs.Main:AddParagraph({
+                Title = player.Name,
+                Content = string.format(
+                    "Level: %d %s\n%s",
+                    level,
+                    textoDiferenca,
+                    status
+                )
+            })
+        end
+    end
+    
+    
+    if #outrosJogadores == 0 then
+        if not playerParagraphs["SemJogadores"] then
+            playerParagraphs["SemJogadores"] = Tabs.Main:AddParagraph({
+                Title = "Servidor vazio",
+                Content = "Não há outros jogadores no servidor."
+            })
+        end
+    else
+        if playerParagraphs["SemJogadores"] then
+            playerParagraphs["SemJogadores"]:Remove()
+            playerParagraphs["SemJogadores"] = nil
+        end
+    end
+end
+
+
+while true do
+    atualizarJogadores()
+    wait(2)
+end
